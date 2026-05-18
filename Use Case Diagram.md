@@ -51,6 +51,3 @@ graph LR
     style UC05 fill:#f5f5f5,stroke:#333,stroke-width:2px
 
 
-LectureMaterial --> Summary : creates
-Exam --> StudyPlan : used for
-```
