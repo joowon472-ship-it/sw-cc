@@ -1,5 +1,4 @@
 ```mermaid
-```mermaid
 classDiagram
   namespace HCI {
     class User {
