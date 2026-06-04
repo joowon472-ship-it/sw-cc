@@ -1,123 +1,75 @@
 ```mermaid
 classDiagram
-direction TB
+    %% [HCI Layer Package]
+    namespace HCI_Presentation_Package {
+        class AuthView {
+            -Map formData
+            +displayLoginScreen()
+            +validateFormInput()
+        }
+        class MaterialView {
+            -String[] menuItems
+            +renderUploadUI()
+            +showSummaryTree()
+        }
+        class DashboardView {
+            -String currentUserId
+            +renderMainDashboard()
+            +refreshScheduleTable()
+        }
+    }
 
-%% HCI Layer
-namespace HCI_UserInterface {
-    class LoginView {
-        +signUp()
-        +login()
+    %% [PD Layer Package]
+    namespace PD_Process_Domain_Package {
+        class UserService {
+            +processSignUp()
+            +verifySession()
+        }
+        class MaterialService {
+            -ArrayList tempFiles
+            +processUpload()
+            +extractCoreConcepts() Tree
+        }
+        class SchedulerService {
+            -PriorityQueue examQueue
+            +generateStudyPlan()
+            +calculateDDay()
+        }
     }
-    class UploadView {
-        +uploadMaterial()
-        +setExamDate()
-        +generatePlan()
-        +requestSummary()
-    }
-}
-namespace HCI_Validation {
-    class InputValidator {
-        -email : String
-        -password : String
-        -examDate : Date
-        +checkEmail()
-        +checkPassword()
-        +checkDateFuture()
-    }
-}
-namespace HCI_AdminInterface {
-    class Admin {
-        -adminId : String
-        -password : String
-        +manageUsers()
-        +manageMaterials()
-        +monitorActivity()
-    }
-}
 
-%% PD Layer
-namespace PD_UserDomain {
-    class User {
-        -userId : String
-        -email : String
-        -password : String
-        +signUp()
-        +login()
-        +uploadLectureMaterial()
-        +setExamDate()
+    %% [DM Layer Package]
+    namespace DM_Data_Management_Package {
+        class UserRepository {
+            -HashMap userIndexTable
+            +saveUser()
+            +findById()
+        }
+        class MaterialRepository {
+            -String fileStoragePath
+            +saveFileStream() Blob
+            +fetchSummaryData()
+        }
+        class ExamRepository {
+            -BTree sequentialIndex
+            +saveExamDate()
+            +getUpcomingExams()
+        }
     }
-}
-namespace PD_PlanningDomain {
-    class Exam {
-        -examDate : Date
-        -subject : String
-        +setExamDate()
-        +validateDate()
-    }
-    class StudyPlan {
-        -planContent : String
-        -createdDate : Date
-        +generatePlan()
-    }
-}
-namespace PD_SummaryDomain {
-    class Summary {
-        -summaryContent : String
-        -keywordMap : Map
-        +generateSummary()
-        +requestSummary()
-    }
-}
 
-%% DM Layer
-namespace DM_MaterialRepository {
-    class LectureMaterial {
-        -fileName : String
-        -uploadDate : Date
-        -fileList : List
-        +uploadMaterial()
-        +getMaterial()
-        +deleteMaterial()
-    }
-}
-namespace DM_PlanRepository {
-    class ExamPlanStore {
-        -examQueue : Queue
-        -planContent : String
-        -createdDate : Date
-        +saveExamDate()
-        +getPlan()
-        +updatePlan()
-    }
-}
-namespace DM_SummaryRepository {
-    class SummaryStore {
-        -summaryMap : Map
-        -history : Stack
-        +saveSummary()
-        +getSummary()
-        +undoSummary()
-    }
-}
+    %% --------------------------------------------------------
+    %% 관계 정의 (Relationship - 이미지의 표기법 가이드라인 준수)
+    %% --------------------------------------------------------
 
-%% HCI → PD
-LoginView      ..> User     : use
-UploadView     ..> User     : use
-UploadView     ..> Exam     : use
-UploadView     ..> StudyPlan : use
-UploadView     ..> Summary  : use
-InputValidator ..> User     : validates
-Admin          ..> User     : manages
+    %% HCI -> PD 레이어 간의 호출 및 의존 관계 (Directed Association / Dependency)
+    AuthView --> UserService : requests authentication
+    MaterialView --> MaterialService : sends file data
+    DashboardView --> SchedulerService : fetches sorted schedule
 
-%% PD 내부
-User --> Exam      : sets
-User --> StudyPlan : generates
-User --> Summary   : requests
-Exam --> StudyPlan : generates
+    %% PD -> DM 레이어 간의 데이터 영속성 처리 (Directed Association)
+    UserService --> UserRepository : persists user data
+    MaterialService --> MaterialRepository : stores blobs & metadata
+    SchedulerService --> ExamRepository : queries exam dates
 
-%% PD → DM
-User      ..> LectureMaterial : use
-Exam      ..> ExamPlanStore   : use
-StudyPlan ..> ExamPlanStore   : use
-Summary   ..> SummaryStore    : use
+    %% 서비스 간의 협력 및 참조 관계 (Association)
+    SchedulerService "1" -- "0..*" MaterialService : analyzes materials for study plan
 ```
