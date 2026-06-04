@@ -2,6 +2,7 @@
 classDiagram
 direction TB
 
+%% HCI Layer
 namespace HCI_UserInterface {
     class LoginView {
         +signUp()
@@ -14,7 +15,6 @@ namespace HCI_UserInterface {
         +requestSummary()
     }
 }
-
 namespace HCI_Validation {
     class InputValidator {
         -email : String
@@ -25,7 +25,6 @@ namespace HCI_Validation {
         +checkDateFuture()
     }
 }
-
 namespace HCI_AdminInterface {
     class Admin {
         -adminId : String
@@ -36,6 +35,7 @@ namespace HCI_AdminInterface {
     }
 }
 
+%% PD Layer
 namespace PD_UserDomain {
     class User {
         -userId : String
@@ -47,7 +47,6 @@ namespace PD_UserDomain {
         +setExamDate()
     }
 }
-
 namespace PD_PlanningDomain {
     class Exam {
         -examDate : Date
@@ -61,7 +60,6 @@ namespace PD_PlanningDomain {
         +generatePlan()
     }
 }
-
 namespace PD_SummaryDomain {
     class Summary {
         -summaryContent : String
@@ -71,6 +69,7 @@ namespace PD_SummaryDomain {
     }
 }
 
+%% DM Layer
 namespace DM_MaterialRepository {
     class LectureMaterial {
         -fileName : String
@@ -81,7 +80,6 @@ namespace DM_MaterialRepository {
         +deleteMaterial()
     }
 }
-
 namespace DM_PlanRepository {
     class ExamPlanStore {
         -examQueue : Queue
@@ -92,7 +90,6 @@ namespace DM_PlanRepository {
         +updatePlan()
     }
 }
-
 namespace DM_SummaryRepository {
     class SummaryStore {
         -summaryMap : Map
@@ -103,19 +100,22 @@ namespace DM_SummaryRepository {
     }
 }
 
-LoginView      ..> User          : use
-UploadView     ..> User          : use
-UploadView     ..> Exam          : use
-UploadView     ..> StudyPlan     : use
-UploadView     ..> Summary       : use
-InputValidator ..> User          : validates
-Admin          ..> User          : manages
+%% HCI → PD
+LoginView      ..> User     : use
+UploadView     ..> User     : use
+UploadView     ..> Exam     : use
+UploadView     ..> StudyPlan : use
+UploadView     ..> Summary  : use
+InputValidator ..> User     : validates
+Admin          ..> User     : manages
 
-User    --> Exam      : sets
-User    --> StudyPlan : generates
-User    --> Summary   : requests
-Exam    --> StudyPlan : generates
+%% PD 내부
+User --> Exam      : sets
+User --> StudyPlan : generates
+User --> Summary   : requests
+Exam --> StudyPlan : generates
 
+%% PD → DM
 User      ..> LectureMaterial : use
 Exam      ..> ExamPlanStore   : use
 StudyPlan ..> ExamPlanStore   : use
